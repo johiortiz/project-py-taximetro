@@ -1,4 +1,4 @@
-def claculate_total(ride_segments, fares):
+def calculate_total(ride_segments, fares):
     """
     Calcula el importe total de una carrera.
 
@@ -35,5 +35,5 @@ if __name__ == "__main__":
         "moving": 0.05,
     }
 
-    total = claculate_total(segments, fares)
+    total = calculate_total(segments, fares)
     print(f"Total: {total:.2f}€")
