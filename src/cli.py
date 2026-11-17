@@ -1,11 +1,10 @@
 from src.ride import Ride
 from src.logger import get_logger
+from src.storage import save_ride
+from src.config import load_fares
 
 def run_cli():
-    fares = {
-        "stopped": 0.02,
-        "moving": 0.05,
-    }
+    fares = load_fares()
     logger = get_logger()
     ride = None
 
@@ -58,7 +57,8 @@ def run_cli():
                 total = ride.finish()
                 print(f"Total de la carrera: {total:.2f}€")
                 logger.info(f"Carrera finalizada. Total: {total:.2f}€")
-
+                save_ride(ride.to_dict())
+                logger.info("Carrera guardada en rides.json")
         else:
             print("Opción no implementada todavía")
         
