@@ -1,7 +1,8 @@
 from src.ride import Ride
 from src.logger import get_logger
-from src.storage import save_ride
+from src.storage import save_ride, load_rides
 from src.config import load_fares
+
 
 def run_cli():
     fares = load_fares()
@@ -14,6 +15,7 @@ def run_cli():
         print("m - En movimiento")
         print("s - Parado")
         print("f - Finalizar carrera")
+        print("h - Historial de carreras")
         print("q - Salir")
 
         option = input("Selecciona una opción: ").strip().lower()
@@ -57,10 +59,30 @@ def run_cli():
                 total = ride.finish()
                 print(f"Total de la carrera: {total:.2f}€")
                 logger.info(f"Carrera finalizada. Total: {total:.2f}€")
+
                 save_ride(ride.to_dict())
                 logger.info("Carrera guardada en rides.json")
+
+        elif option == "h":
+            rides = load_rides()
+
+            if not rides:
+                print("No hay carreras guardadas.")
+            else:
+                print("\nHistorial de carreras")
+
+                for index, ride_data in enumerate(rides, start=1):
+                    started_at = ride_data["started_at"]
+                    total = ride_data["total"]
+
+                    print(
+                        f"{index}. Inicio: {started_at} "
+                        f"- Total: {total:.2f}€"
+                    )
+
         else:
             print("Opción no implementada todavía")
-        
+
+
 if __name__ == "__main__":
     run_cli()
