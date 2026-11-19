@@ -2,7 +2,12 @@ from src.ride import Ride
 from src.logger import get_logger
 from src.storage import save_ride, load_rides
 from src.config import load_fares
+from datetime import datetime
 
+def format_datetime(datetime_text):
+    datetime_object = datetime.fromisoformat(datetime_text)
+
+    return datetime_object.strftime("%d/%m/%Y %H:%M")
 
 def run_cli():
     fares = load_fares()
@@ -72,17 +77,64 @@ def run_cli():
                 print("\nHistorial de carreras")
 
                 for index, ride_data in enumerate(rides, start=1):
-                    started_at = ride_data["started_at"]
+                    started_at = format_datetime(ride_data["started_at"])
                     total = ride_data["total"]
+                    segments = ride_data["segments"]
+                    duration = get_total_duration(ride_data)
+                    formatted_duration = format_duration(duration)
 
-                    print(
-                        f"{index}. Inicio: {started_at} "
-                        f"- Total: {total:.2f}€"
-                    )
+                    print(f"\n{index}. Inicio: {started_at}")
+                    print(f"   Total: {total:.2f}€")
+                    print(f"   Duración: {formatted_duration}")
+                    print("   Tramos:")
+
+                    for segment in segments:
+                        status = segment["status"]
+                        seconds = segment["seconds"]
+
+                        print(f"   - {status}: {seconds:.2f} segundos")
+                    
+                    summary = get_history_summary(rides)
+
+                    print("\nResumen")
+                    print(f"Carreras: {summary['total_rides']}")
+                    print(f"Duración total: {format_duration(summary['total_duration'])}")
+                    print(f"Importe total: {summary['total_amount']:.2f}€")
 
         else:
             print("Opción no implementada todavía")
 
+def get_total_duration(ride_data):
+    total_seconds = 0.0
+
+    for segment in ride_data["segments"]:
+        total_seconds += segment["seconds"]
+
+    return total_seconds
+
+def format_duration(seconds):
+    hours = int(seconds // 3600)
+    minutes = int((seconds % 3600) // 60)
+    remaining_seconds = int(seconds % 60)
+
+    return f"{hours}h {minutes}m {remaining_seconds}s"
+
+def get_history_summary(rides):
+    total_rides = len(rides)
+    total_duration = 0.0
+    total_amount = 0.0
+
+    for ride_data in rides:
+        for segment in ride_data["segments"]:
+            total_duration += segment["seconds"]
+
+        total_amount += ride_data["total"]
+
+    return {
+        "total_rides": total_rides,
+        "total_duration": total_duration,
+        "total_amount": total_amount,
+    }
 
 if __name__ == "__main__":
     run_cli()

@@ -1,6 +1,6 @@
 import unittest
 
-from taximeter import calculate_total
+from src.taximeter import calculate_total
 
 
 class TestCalculateTotal(unittest.TestCase):
